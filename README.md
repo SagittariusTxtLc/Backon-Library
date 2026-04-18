@@ -49,3 +49,17 @@ Win1:Dropdown("Dropdown Text", {"Option 1","Option 2","Option 3"}, function(v)
 end)
 ```
 
+## Load Section
+```lua
+Win1:Section("Section Name")
+```
+
+## Load Lebel
+```lua
+Win1:Label("Label Text")
+```
+
+## Load Final (THIS REQUIRED OR THE UI WILL NOT SHOW
+```lua
+UI:Start()
+```
