@@ -1,7 +1,7 @@
 # Backon-Library
 A lightweight Roblox UI Library With Clean And Aesthetic UI, Version Of Wizard Ui
 
-### Load Library
+## Load Library
 ```lua
 local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/SagittariusTxtLc/Backon-Library/refs/heads/main/Sgd/Lib"))()
 ```
@@ -95,5 +95,5 @@ print(myDrop:Get())
 ```
 
 ## Made By : @Backon4557
-## CTTO : @Tora IsMe
-## Inspired By : Wizard Ui Library
+# CTTO : @Tora IsMe
+# Inspired By : Wizard Ui Library
