@@ -151,34 +151,34 @@ function Lib:CreateWindow(title)
 
 	-- DRAG
 	local dragging  = false
-	local dragStart = nil
-	local startPos  = nil
+local dragStart = nil
+local startPos  = nil
 
-	frame.InputBegan:Connect(function(i)
+titleBar.InputBegan:Connect(function(i)
 	if i.UserInputType == Enum.UserInputType.MouseButton1
 	or i.UserInputType == Enum.UserInputType.Touch then
-		if i.Position.Y - frame.AbsolutePosition.Y < 40 then
-			dragging = true; dragStart = i.Position; startPos = frame.Position
-		end
+		dragging = true
+		dragStart = i.Position
+		startPos = frame.Position
 	end
 end)
-frame.InputEnded:Connect(function(i)
+titleBar.InputEnded:Connect(function(i)
 	if i.UserInputType == Enum.UserInputType.MouseButton1
 	or i.UserInputType == Enum.UserInputType.Touch then
 		dragging = false
 	end
 end)
-	UIS.InputChanged:Connect(function(i)
-		if not dragging then return end
-		if i.UserInputType == Enum.UserInputType.MouseMovement
-		or i.UserInputType == Enum.UserInputType.Touch then
-			local sc    = workspace.CurrentCamera.ViewportSize
-			local delta = i.Position - dragStart
-			local newX  = math.clamp(startPos.X.Offset + delta.X, 0, sc.X - frame.AbsoluteSize.X)
-			local newY  = math.clamp(startPos.Y.Offset + delta.Y, 0, sc.Y - frame.AbsoluteSize.Y)
-			frame.Position = UDim2.new(0, newX, 0, newY)
-		end
-	end)
+UIS.InputChanged:Connect(function(i)
+	if not dragging then return end
+	if i.UserInputType == Enum.UserInputType.MouseMovement
+	or i.UserInputType == Enum.UserInputType.Touch then
+		local sc    = workspace.CurrentCamera.ViewportSize
+		local delta = i.Position - dragStart
+		local newX  = math.clamp(startPos.X.Offset + delta.X, 0, math.max(0, sc.X - frame.AbsoluteSize.X))
+		local newY  = math.clamp(startPos.Y.Offset + delta.Y, 0, math.max(0, sc.Y - frame.AbsoluteSize.Y))
+		frame.Position = UDim2.new(0, newX, 0, newY)
+	end
+end)
 
 	-- ANTI OUT OF SCREEN
 	RunService.RenderStepped:Connect(function()
