@@ -15,6 +15,7 @@ _G["4557Running"] = true
 
 local Lib   = {}
 Lib.__index = Lib
+Lib.flags   = {}
 
 local _gui = Instance.new("ScreenGui")
 _gui.Name           = "4557HubGui"
@@ -23,14 +24,13 @@ _gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 _gui.Parent         = player.PlayerGui
 
 local WIN_W        = 220
-local WIN_H        = 350  -- FIXED HEIGHT
+local WIN_H        = 350
 local WIN_MAR      = 15
 local WIN_Y        = 10
 local _windows     = {}
 local _loaded      = false
 local _pendingShow = {}
 
--- HELPERS
 local function _style(obj)
 	Instance.new("UICorner", obj)
 	local s = Instance.new("UIStroke", obj)
@@ -63,14 +63,13 @@ local function _reposition()
 	end
 end
 
--- CREATE WINDOW
 function Lib:CreateWindow(title)
 
 	local winData = { shown = false }
 	table.insert(_windows, winData)
 
 	local frame = Instance.new("Frame")
-	frame.Size             = UDim2.new(0, WIN_W, 0, WIN_H)  -- FIXED SIZE
+	frame.Size             = UDim2.new(0, WIN_W, 0, WIN_H)
 	frame.Position         = UDim2.new(0, WIN_MAR, 0, WIN_Y)
 	frame.BackgroundColor3 = Color3.fromRGB(0,0,0)
 	frame.ClipsDescendants = true
@@ -124,8 +123,6 @@ function Lib:CreateWindow(title)
 	pad.Parent        = scroll
 
 	local collapsed = false
-
-	-- ONLY UPDATE SCROLL CANVAS, NOT FRAME SIZE
 	local function updateCanvas()
 		task.defer(function()
 			scroll.CanvasSize = UDim2.new(0,0,0, layout.AbsoluteContentSize.Y + 10)
@@ -146,7 +143,6 @@ function Lib:CreateWindow(title)
 		end
 	end)
 
-	-- DRAG
 	local dragging  = false
 	local dragStart = nil
 	local startPos  = nil
@@ -177,7 +173,6 @@ function Lib:CreateWindow(title)
 		end
 	end)
 
-	-- ANTI OUT OF SCREEN
 	RunService.RenderStepped:Connect(function()
 		if not frame or not frame.Parent then return end
 		local sc  = workspace.CurrentCamera.ViewportSize
@@ -201,10 +196,11 @@ function Lib:CreateWindow(title)
 	local _order = 0
 	local function nxt() _order += 1; return _order end
 
-	function Win:SetTitle(text) titleBar.Text = string.upper(text or "Window") end
+	function Win:SetTitle(t) titleBar.Text = string.upper(t or "Window") end
 	function Win:SetPosition(x, y) frame.Position = UDim2.new(0, x, 0, y) end
 
-	function Win:Label(text)
+	function Win:Label(cfg)
+		local text = type(cfg) == "table" and cfg.text or cfg
 		local lbl = Instance.new("TextLabel")
 		lbl.Size                  = UDim2.new(1,0,0,30)
 		lbl.Text                  = text or "Label"
@@ -215,13 +211,12 @@ function Lib:CreateWindow(title)
 		lbl.TextXAlignment        = Enum.TextXAlignment.Center
 		lbl.LayoutOrder           = nxt()
 		lbl.Parent                = scroll
-		local lp = Instance.new("UIPadding")
-		lp.PaddingLeft = UDim.new(0,8); lp.Parent = lbl
 		updateCanvas()
 		return lbl
 	end
 
-	function Win:Section(text)
+	function Win:Section(cfg)
+		local text = type(cfg) == "table" and cfg.text or cfg
 		local sec = Instance.new("Frame")
 		sec.Size                  = UDim2.new(1,0,0,26)
 		sec.BackgroundTransparency = 1
@@ -251,7 +246,10 @@ function Lib:CreateWindow(title)
 		updateCanvas()
 	end
 
-	function Win:Button(text, callback)
+	function Win:Button(cfg)
+		local text     = type(cfg) == "table" and cfg.text or cfg
+		local callback = type(cfg) == "table" and cfg.callback or nil
+		local flag     = type(cfg) == "table" and cfg.flag or nil
 		local btn = Instance.new("TextButton")
 		btn.Size             = UDim2.new(1,0,0,40)
 		btn.Text             = text or "Button"
@@ -280,12 +278,17 @@ function Lib:CreateWindow(title)
 			TweenService:Create(btn, TweenInfo.new(0), {BackgroundColor3 = Color3.fromRGB(25,25,25)}):Play()
 			if callback then pcall(callback) end
 		end)
+		if flag then Lib.flags[flag] = false end
 		updateCanvas()
 		return btn
 	end
 
-	function Win:Toggle(text, default, callback)
-		local state = default or false
+	function Win:Toggle(cfg)
+		local text     = type(cfg) == "table" and cfg.text or cfg
+		local default  = type(cfg) == "table" and cfg.default or false
+		local callback = type(cfg) == "table" and cfg.callback or nil
+		local flag     = type(cfg) == "table" and cfg.flag or nil
+		local state = default
 		local row = Instance.new("TextButton")
 		row.Size             = UDim2.new(1,0,0,40)
 		row.BackgroundColor3 = Color3.fromRGB(25,25,25)
@@ -312,16 +315,28 @@ function Lib:CreateWindow(title)
 		row.MouseButton1Click:Connect(function()
 			state = not state
 			box.BackgroundColor3 = state and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40)
+			if flag then Lib.flags[flag] = state end
 			if callback then pcall(callback, state) end
 		end)
+		if flag then Lib.flags[flag] = state end
 		updateCanvas()
 		local T = {}
-		function T:Set(v) state = v; box.BackgroundColor3 = v and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40) end
+		function T:Set(v)
+			state = v
+			box.BackgroundColor3 = v and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40)
+			if flag then Lib.flags[flag] = v end
+		end
 		function T:Get() return state end
 		return T
 	end
 
-	function Win:Slider(text, min, max, default, callback)
+	function Win:Slider(cfg)
+		local text     = type(cfg) == "table" and cfg.text or cfg
+		local min      = type(cfg) == "table" and cfg.min or 0
+		local max      = type(cfg) == "table" and cfg.max or 100
+		local default  = type(cfg) == "table" and cfg.default or min
+		local callback = type(cfg) == "table" and cfg.callback or nil
+		local flag     = type(cfg) == "table" and cfg.flag or nil
 		min = min or 0; max = max or 100
 		local val = math.clamp(default or min, min, max)
 		local cont = Instance.new("Frame")
@@ -385,6 +400,7 @@ function Lib:CreateWindow(title)
 			knob.Position = UDim2.new(pos,0,0.5,0)
 			val           = math.floor(min + pos*(max-min))
 			valTxt.Text   = tostring(val)
+			if flag then Lib.flags[flag] = val end
 			if callback then pcall(callback, val) end
 		end
 		bar.InputBegan:Connect(function(i)
@@ -412,10 +428,12 @@ function Lib:CreateWindow(title)
 					fill.Size = UDim2.new(p,0,1,0)
 					knob.Position = UDim2.new(p,0,0.5,0)
 					valTxt.Text = tostring(val)
+					if flag then Lib.flags[flag] = val end
 					if callback then pcall(callback, val) end
 				else valTxt.Text = tostring(val) end
 			end
 		end)
+		if flag then Lib.flags[flag] = val end
 		updateCanvas()
 		local S = {}
 		function S:Set(v)
@@ -424,12 +442,17 @@ function Lib:CreateWindow(title)
 			fill.Size = UDim2.new(p,0,1,0)
 			knob.Position = UDim2.new(p,0,0.5,0)
 			valTxt.Text = tostring(val)
+			if flag then Lib.flags[flag] = val end
 		end
 		function S:Get() return val end
 		return S
 	end
 
-	function Win:Dropdown(headerText, options, callback)
+	function Win:Dropdown(cfg)
+		local headerText = type(cfg) == "table" and cfg.text or cfg
+		local options    = type(cfg) == "table" and cfg.options or {}
+		local callback   = type(cfg) == "table" and cfg.callback or nil
+		local flag       = type(cfg) == "table" and cfg.flag or nil
 		local selected = "Select Option"
 		local dropBtn = Instance.new("TextButton")
 		dropBtn.Size             = UDim2.new(1,0,0,50)
@@ -489,6 +512,7 @@ function Lib:CreateWindow(title)
 			_style(opt)
 			opt.MouseButton1Click:Connect(function()
 				selected = v; selLbl.Text = v; open = false
+				if flag then Lib.flags[flag] = v end
 				TweenService:Create(dropFrame, TweenInfo.new(0.2), {Size = UDim2.new(1,0,0,0)}):Play()
 				task.wait(0.21); updateCanvas()
 				if callback then pcall(callback, v) end
@@ -500,10 +524,11 @@ function Lib:CreateWindow(title)
 			TweenService:Create(dropFrame, TweenInfo.new(0.25), {Size = UDim2.new(1,0,0,h)}):Play()
 			task.delay(0.26, updateCanvas)
 		end)
+		if flag then Lib.flags[flag] = selected end
 		updateCanvas()
 		local D = {}
 		function D:Get() return selected end
-		function D:Set(v) selected = v; selLbl.Text = v end
+		function D:Set(v) selected = v; selLbl.Text = v; if flag then Lib.flags[flag] = v end end
 		return D
 	end
 
@@ -569,7 +594,10 @@ function Lib:CreateWindow(title)
 		local _fOrder = 0
 		local function fnxt() _fOrder += 1; return _fOrder end
 
-		function Folder:Button(text, callback)
+		function Folder:Button(cfg)
+			local text     = type(cfg) == "table" and cfg.text or cfg
+			local callback = type(cfg) == "table" and cfg.callback or nil
+			local flag     = type(cfg) == "table" and cfg.flag or nil
 			local btn = Instance.new("TextButton")
 			btn.Size             = UDim2.new(1,0,0,36)
 			btn.Text             = text or "Button"
@@ -598,12 +626,17 @@ function Lib:CreateWindow(title)
 				TweenService:Create(btn, TweenInfo.new(0), {BackgroundColor3 = Color3.fromRGB(20,20,20)}):Play()
 				if callback then pcall(callback) end
 			end)
+			if flag then Lib.flags[flag] = false end
 			updateCanvas()
 			return btn
 		end
 
-		function Folder:Toggle(text, default, callback)
-			local state = default or false
+		function Folder:Toggle(cfg)
+			local text     = type(cfg) == "table" and cfg.text or cfg
+			local default  = type(cfg) == "table" and cfg.default or false
+			local callback = type(cfg) == "table" and cfg.callback or nil
+			local flag     = type(cfg) == "table" and cfg.flag or nil
+			local state = default
 			local row = Instance.new("TextButton")
 			row.Size             = UDim2.new(1,0,0,36)
 			row.BackgroundColor3 = Color3.fromRGB(20,20,20)
@@ -630,16 +663,28 @@ function Lib:CreateWindow(title)
 			row.MouseButton1Click:Connect(function()
 				state = not state
 				box.BackgroundColor3 = state and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40)
+				if flag then Lib.flags[flag] = state end
 				if callback then pcall(callback, state) end
 			end)
+			if flag then Lib.flags[flag] = state end
 			updateCanvas()
 			local T = {}
-			function T:Set(v) state = v; box.BackgroundColor3 = v and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40) end
+			function T:Set(v)
+				state = v
+				box.BackgroundColor3 = v and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40)
+				if flag then Lib.flags[flag] = v end
+			end
 			function T:Get() return state end
 			return T
 		end
 
-		function Folder:Slider(text, min, max, default, callback)
+		function Folder:Slider(cfg)
+			local text     = type(cfg) == "table" and cfg.text or cfg
+			local min      = type(cfg) == "table" and cfg.min or 0
+			local max      = type(cfg) == "table" and cfg.max or 100
+			local default  = type(cfg) == "table" and cfg.default or min
+			local callback = type(cfg) == "table" and cfg.callback or nil
+			local flag     = type(cfg) == "table" and cfg.flag or nil
 			min = min or 0; max = max or 100
 			local val = math.clamp(default or min, min, max)
 			local cont = Instance.new("Frame")
@@ -702,6 +747,7 @@ function Lib:CreateWindow(title)
 				knob.Position = UDim2.new(pos,0,0.5,0)
 				val           = math.floor(min + pos*(max-min))
 				valTxt.Text   = tostring(val)
+				if flag then Lib.flags[flag] = val end
 				if callback then pcall(callback, val) end
 			end
 			bar.InputBegan:Connect(function(i)
@@ -729,10 +775,12 @@ function Lib:CreateWindow(title)
 						fill.Size = UDim2.new(p,0,1,0)
 						knob.Position = UDim2.new(p,0,0.5,0)
 						valTxt.Text = tostring(val)
+						if flag then Lib.flags[flag] = val end
 						if callback then pcall(callback, val) end
 					else valTxt.Text = tostring(val) end
 				end
 			end)
+			if flag then Lib.flags[flag] = val end
 			updateCanvas()
 			local S = {}
 			function S:Set(v)
@@ -741,12 +789,17 @@ function Lib:CreateWindow(title)
 				fill.Size = UDim2.new(p,0,1,0)
 				knob.Position = UDim2.new(p,0,0.5,0)
 				valTxt.Text = tostring(val)
+				if flag then Lib.flags[flag] = val end
 			end
 			function S:Get() return val end
 			return S
 		end
 
-		function Folder:Dropdown(headerText, options, callback)
+		function Folder:Dropdown(cfg)
+			local headerText = type(cfg) == "table" and cfg.text or cfg
+			local options    = type(cfg) == "table" and cfg.options or {}
+			local callback   = type(cfg) == "table" and cfg.callback or nil
+			local flag       = type(cfg) == "table" and cfg.flag or nil
 			local selected = "Select Option"
 			local dropBtn = Instance.new("TextButton")
 			dropBtn.Size             = UDim2.new(1,0,0,46)
@@ -806,6 +859,7 @@ function Lib:CreateWindow(title)
 				_style(opt)
 				opt.MouseButton1Click:Connect(function()
 					selected = v; selLbl.Text = v; open = false
+					if flag then Lib.flags[flag] = v end
 					TweenService:Create(dropFrame, TweenInfo.new(0.2), {Size = UDim2.new(1,0,0,0)}):Play()
 					task.wait(0.21)
 					updateFolder()
@@ -822,10 +876,11 @@ function Lib:CreateWindow(title)
 					updateCanvas()
 				end)
 			end)
+			if flag then Lib.flags[flag] = selected end
 			updateCanvas()
 			local D = {}
 			function D:Get() return selected end
-			function D:Set(v) selected = v; selLbl.Text = v end
+			function D:Set(v) selected = v; selLbl.Text = v; if flag then Lib.flags[flag] = v end end
 			return D
 		end
 
@@ -836,7 +891,6 @@ function Lib:CreateWindow(title)
 	return Win
 end
 
--- START
 function Lib:Start()
 	_loaded = true
 	for _, fn in ipairs(_pendingShow) do fn() end
