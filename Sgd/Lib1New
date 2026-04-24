@@ -39,6 +39,7 @@ local MAX_WIN_H         = TITLE_H + (ITEM_H * MAX_ITEMS_VISIBLE) + 16
 local _windows     = {}
 local _loaded      = false
 local _pendingShow = {}
+local _flags       = {}  -- global flag storage
 
 -- HELPERS
 local function _corner(obj, r)
@@ -96,9 +97,12 @@ local function _reposition()
 	end
 end
 
--- =====================
---   CREATE WINDOW
--- =====================
+-- GET FLAG VALUE
+function Lib:GetFlag(flag)
+	return _flags[flag]
+end
+
+-- CREATE WINDOW
 function Lib:CreateWindow(title)
 
 	local winData = { shown = false }
@@ -117,7 +121,6 @@ function Lib:CreateWindow(title)
 	_stroke(frame, Color3.fromRGB(40,40,40))
 	winData.frame = frame
 
-	-- Title bar
 	local titleBar = Instance.new("TextLabel")
 	titleBar.Size             = UDim2.new(1,0,0,TITLE_H)
 	titleBar.Text             = string.upper(title or "Window")
@@ -129,7 +132,6 @@ function Lib:CreateWindow(title)
 	titleBar.Parent           = frame
 	_corner(titleBar)
 
-	-- Collapse button
 	local colBtn = Instance.new("TextButton")
 	colBtn.Size               = UDim2.new(0,30,0,30)
 	colBtn.Position           = UDim2.new(1,-35,0.5,-15)
@@ -140,12 +142,11 @@ function Lib:CreateWindow(title)
 	colBtn.TextColor3         = Color3.new(1,1,1)
 	colBtn.Parent             = titleBar
 
-	-- ScrollingFrame (fixed height, scrolls when content overflows 4 items)
 	local scroll = Instance.new("ScrollingFrame")
 	scroll.Size                 = UDim2.new(1,0,0, MAX_WIN_H - TITLE_H)
 	scroll.Position             = UDim2.new(0,0,0, TITLE_H)
 	scroll.BackgroundTransparency = 1
-	scroll.ScrollBarThickness   = 0   -- hidden until overflow
+	scroll.ScrollBarThickness   = 0
 	scroll.ScrollBarImageColor3 = Color3.fromRGB(220,20,60)
 	scroll.CanvasSize           = UDim2.new(0,0,0,0)
 	scroll.AutomaticCanvasSize  = Enum.AutomaticSize.Y
@@ -171,9 +172,7 @@ function Lib:CreateWindow(title)
 			contentH = layout.AbsoluteContentSize.Y + 10
 			if collapsed then return end
 			local overflow = (contentH + TITLE_H) > MAX_WIN_H
-			-- show scrollbar only when content overflows
 			scroll.ScrollBarThickness = overflow and 4 or 0
-			-- window height capped at MAX_WIN_H
 			local targetH = math.clamp(contentH + TITLE_H, TITLE_H + 40, MAX_WIN_H)
 			frame.Size = UDim2.new(0, WIN_W, 0, targetH)
 		end)
@@ -181,7 +180,6 @@ function Lib:CreateWindow(title)
 
 	layout:GetPropertyChangedSignal("AbsoluteContentSize"):Connect(updateCanvas)
 
-	-- Collapse logic
 	colBtn.MouseButton1Click:Connect(function()
 		collapsed = not collapsed
 		if collapsed then
@@ -194,7 +192,6 @@ function Lib:CreateWindow(title)
 		end
 	end)
 
-	-- Drag
 	local dragging  = false
 	local dragStart = nil
 	local startPos  = nil
@@ -240,11 +237,23 @@ function Lib:CreateWindow(title)
 	local _order = 0
 	local function nxt() _order += 1; return _order end
 
-	function Win:SetTitle(text)    titleBar.Text = string.upper(text or "Window") end
-	function Win:SetPosition(x, y) frame.Position = UDim2.new(0, x, 0, y) end
+	function Win:SetTitle(text)     titleBar.Text = string.upper(text or "Window") end
+	function Win:SetPosition(x, y)  frame.Position = UDim2.new(0, x, 0, y) end
+
+	function Win:Destroy()
+		frame:Destroy()
+		for i, w in ipairs(_windows) do
+			if w.frame == frame then
+				table.remove(_windows, i)
+				break
+			end
+		end
+		_reposition()
+	end
 
 	-- LABEL
-	function Win:Label(text)
+	function Win:AddLabel(cfg)
+		local text = type(cfg) == "table" and cfg.text or cfg
 		local lbl = Instance.new("TextLabel")
 		lbl.Size                   = UDim2.new(1,0,0,30)
 		lbl.Text                   = text or "Label"
@@ -262,7 +271,8 @@ function Lib:CreateWindow(title)
 	end
 
 	-- SECTION
-	function Win:Section(text)
+	function Win:AddSection(cfg)
+		local text = type(cfg) == "table" and cfg.text or cfg
 		local sec = Instance.new("Frame")
 		sec.Size                   = UDim2.new(1,0,0,26)
 		sec.BackgroundTransparency = 1
@@ -293,10 +303,13 @@ function Lib:CreateWindow(title)
 	end
 
 	-- BUTTON
-	function Win:Button(text, callback)
+	function Win:AddButton(cfg)
+		local text     = cfg.text or "Button"
+		local flag     = cfg.flag
+		local callback = cfg.callback
 		local btn = Instance.new("TextButton")
 		btn.Size             = UDim2.new(1,0,0,40)
-		btn.Text             = text or "Button"
+		btn.Text             = text
 		btn.BackgroundColor3 = Color3.fromRGB(25,25,25)
 		btn.TextColor3       = Color3.fromRGB(255,255,255)
 		btn.Font             = Enum.Font.GothamBold
@@ -325,13 +338,18 @@ function Lib:CreateWindow(title)
 			end)
 			if callback then pcall(callback) end
 		end)
+		if flag then _flags[flag] = false end
 		updateCanvas()
 		return btn
 	end
 
 	-- TOGGLE
-	function Win:Toggle(text, default, callback)
-		local state = default or false
+	function Win:AddToggle(cfg)
+		local text     = cfg.text or "Toggle"
+		local flag     = cfg.flag
+		local default  = cfg.default or false
+		local callback = cfg.callback
+		local state    = default
 		local row = Instance.new("TextButton")
 		row.Size             = UDim2.new(1,0,0,40)
 		row.BackgroundColor3 = Color3.fromRGB(25,25,25)
@@ -343,7 +361,7 @@ function Lib:CreateWindow(title)
 		lbl.Size               = UDim2.new(1,-50,1,0)
 		lbl.Position           = UDim2.new(0,10,0,0)
 		lbl.BackgroundTransparency = 1
-		lbl.Text               = text or "Toggle"
+		lbl.Text               = text
 		lbl.Font               = Enum.Font.GothamBold
 		lbl.TextSize           = 16
 		lbl.TextColor3         = Color3.new(1,1,1)
@@ -355,9 +373,11 @@ function Lib:CreateWindow(title)
 		box.BackgroundColor3 = state and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40)
 		box.Parent           = row
 		_corner(box)
+		if flag then _flags[flag] = state end
 		row.MouseButton1Click:Connect(function()
 			state = not state
 			_tween(box, 0.15, { BackgroundColor3 = state and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40) })
+			if flag then _flags[flag] = state end
 			if callback then pcall(callback, state) end
 		end)
 		updateCanvas()
@@ -365,15 +385,21 @@ function Lib:CreateWindow(title)
 		function T:Set(v)
 			state = v
 			_tween(box, 0.15, { BackgroundColor3 = v and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40) })
+			if flag then _flags[flag] = v end
 		end
 		function T:Get() return state end
 		return T
 	end
 
 	-- SLIDER
-	function Win:Slider(text, min, max, default, callback)
-		min = min or 0; max = max or 100
-		local val = math.clamp(default or min, min, max)
+	function Win:AddSlider(cfg)
+		local text     = cfg.text or "Slider"
+		local flag     = cfg.flag
+		local min      = cfg.min or 0
+		local max      = cfg.max or 100
+		local default  = cfg.default or min
+		local callback = cfg.callback
+		local val = math.clamp(default, min, max)
 		local cont = Instance.new("Frame")
 		cont.Size             = UDim2.new(1,0,0,70)
 		cont.BackgroundColor3 = Color3.fromRGB(25,25,25)
@@ -383,7 +409,7 @@ function Lib:CreateWindow(title)
 		local tLbl = Instance.new("TextLabel")
 		tLbl.Size               = UDim2.new(0.6,0,0,20)
 		tLbl.Position           = UDim2.new(0,10,0,5)
-		tLbl.Text               = text or "Slider"
+		tLbl.Text               = text
 		tLbl.Font               = Enum.Font.GothamBold
 		tLbl.TextSize           = 16
 		tLbl.TextXAlignment     = Enum.TextXAlignment.Left
@@ -427,13 +453,15 @@ function Lib:CreateWindow(title)
 		knob.BackgroundColor3 = Color3.fromRGB(220,20,60)
 		knob.Parent      = bar
 		_corner(knob)
+		if flag then _flags[flag] = val end
 		local sliderDrag = false
 		local function setPos(pos)
-			pos           = math.clamp(pos, 0, 1)
+			pos           = math.clamp(pos,0,1)
 			fill.Size     = UDim2.new(pos,0,1,0)
 			knob.Position = UDim2.new(pos,0,0.5,0)
 			val           = math.floor(min + pos*(max-min))
 			valTxt.Text   = tostring(val)
+			if flag then _flags[flag] = val end
 			if callback then pcall(callback, val) end
 		end
 		bar.InputBegan:Connect(function(i)
@@ -465,10 +493,9 @@ function Lib:CreateWindow(title)
 					fill.Size     = UDim2.new(p,0,1,0)
 					knob.Position = UDim2.new(p,0,0.5,0)
 					valTxt.Text   = tostring(val)
+					if flag then _flags[flag] = val end
 					if callback then pcall(callback, val) end
-				else
-					valTxt.Text = tostring(val)
-				end
+				else valTxt.Text = tostring(val) end
 			end
 		end)
 		updateCanvas()
@@ -479,14 +506,19 @@ function Lib:CreateWindow(title)
 			fill.Size     = UDim2.new(p,0,1,0)
 			knob.Position = UDim2.new(p,0,0.5,0)
 			valTxt.Text   = tostring(val)
+			if flag then _flags[flag] = val end
 		end
 		function S:Get() return val end
 		return S
 	end
 
 	-- DROPDOWN
-	function Win:Dropdown(headerText, options, callback)
-		local selected = "Select Option"
+	function Win:AddDropdown(cfg)
+		local headerText = cfg.text or "Dropdown"
+		local flag       = cfg.flag
+		local options    = cfg.values or {}
+		local callback   = cfg.callback
+		local selected   = "Select Option"
 		local dropBtn = Instance.new("TextButton")
 		dropBtn.Size             = UDim2.new(1,0,0,50)
 		dropBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
@@ -498,7 +530,7 @@ function Lib:CreateWindow(title)
 		headLbl.Size               = UDim2.new(1,-10,0,18)
 		headLbl.Position           = UDim2.new(0,5,0,2)
 		headLbl.BackgroundTransparency = 1
-		headLbl.Text               = headerText or "Dropdown"
+		headLbl.Text               = headerText
 		headLbl.TextColor3         = Color3.fromRGB(170,170,170)
 		headLbl.Font               = Enum.Font.Gotham
 		headLbl.TextSize           = 13
@@ -534,7 +566,8 @@ function Lib:CreateWindow(title)
 		_corner(dropFrame)
 		Instance.new("UIListLayout", dropFrame)
 		local open = false
-		for _, v in ipairs(options or {}) do
+		if flag then _flags[flag] = selected end
+		for _, v in ipairs(options) do
 			local opt = Instance.new("TextButton")
 			opt.Size             = UDim2.new(1,0,0,30)
 			opt.Active           = true
@@ -550,6 +583,7 @@ function Lib:CreateWindow(title)
 				selLbl.Text     = v
 				open            = false
 				arrowLbl.Text   = "▼"
+				if flag then _flags[flag] = v end
 				_tween(dropFrame, 0.2, { Size = UDim2.new(1,0,0,0) })
 				task.wait(0.21); updateCanvas()
 				if callback then pcall(callback, v) end
@@ -565,7 +599,7 @@ function Lib:CreateWindow(title)
 		updateCanvas()
 		local D = {}
 		function D:Get() return selected end
-		function D:Set(v) selected = v; selLbl.Text = v end
+		function D:Set(v) selected = v; selLbl.Text = v; if flag then _flags[flag] = v end end
 		return D
 	end
 
@@ -624,19 +658,22 @@ function Lib:CreateWindow(title)
 
 		tabBtn.MouseButton1Click:Connect(function()
 			folderOpen = not folderOpen
-			tabBtn.Text      = (folderOpen and "▼  " or "▶  ") .. (folderName or "Folder")
+			tabBtn.Text       = (folderOpen and "▼  " or "▶  ") .. (folderName or "Folder")
 			tabBtn.TextColor3 = folderOpen and Color3.fromRGB(220,20,60) or Color3.fromRGB(180,180,180)
 			updateFolder()
 		end)
 
-		local Folder = {}
+		local Folder  = {}
 		local _fOrder = 0
 		local function fnxt() _fOrder += 1; return _fOrder end
 
-		function Folder:Button(text, callback)
+		function Folder:AddButton(cfg)
+			local text     = cfg.text or "Button"
+			local flag     = cfg.flag
+			local callback = cfg.callback
 			local btn = Instance.new("TextButton")
 			btn.Size             = UDim2.new(1,0,0,36)
-			btn.Text             = text or "Button"
+			btn.Text             = text
 			btn.BackgroundColor3 = Color3.fromRGB(20,20,20)
 			btn.TextColor3       = Color3.fromRGB(255,255,255)
 			btn.Font             = Enum.Font.GothamBold
@@ -665,12 +702,17 @@ function Lib:CreateWindow(title)
 				end)
 				if callback then pcall(callback) end
 			end)
+			if flag then _flags[flag] = false end
 			updateCanvas()
 			return btn
 		end
 
-		function Folder:Toggle(text, default, callback)
-			local state = default or false
+		function Folder:AddToggle(cfg)
+			local text     = cfg.text or "Toggle"
+			local flag     = cfg.flag
+			local default  = cfg.default or false
+			local callback = cfg.callback
+			local state    = default
 			local row = Instance.new("TextButton")
 			row.Size             = UDim2.new(1,0,0,36)
 			row.BackgroundColor3 = Color3.fromRGB(20,20,20)
@@ -682,7 +724,7 @@ function Lib:CreateWindow(title)
 			lbl.Size               = UDim2.new(1,-50,1,0)
 			lbl.Position           = UDim2.new(0,10,0,0)
 			lbl.BackgroundTransparency = 1
-			lbl.Text               = text or "Toggle"
+			lbl.Text               = text
 			lbl.Font               = Enum.Font.GothamBold
 			lbl.TextSize           = 14
 			lbl.TextColor3         = Color3.new(1,1,1)
@@ -694,9 +736,11 @@ function Lib:CreateWindow(title)
 			box.BackgroundColor3 = state and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40)
 			box.Parent           = row
 			_corner(box)
+			if flag then _flags[flag] = state end
 			row.MouseButton1Click:Connect(function()
 				state = not state
 				_tween(box, 0.15, { BackgroundColor3 = state and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40) })
+				if flag then _flags[flag] = state end
 				if callback then pcall(callback, state) end
 			end)
 			updateCanvas()
@@ -704,14 +748,20 @@ function Lib:CreateWindow(title)
 			function T:Set(v)
 				state = v
 				_tween(box, 0.15, { BackgroundColor3 = v and Color3.fromRGB(220,20,60) or Color3.fromRGB(40,40,40) })
+				if flag then _flags[flag] = v end
 			end
 			function T:Get() return state end
 			return T
 		end
 
-		function Folder:Slider(text, min, max, default, callback)
-			min = min or 0; max = max or 100
-			local val = math.clamp(default or min, min, max)
+		function Folder:AddSlider(cfg)
+			local text     = cfg.text or "Slider"
+			local flag     = cfg.flag
+			local min      = cfg.min or 0
+			local max      = cfg.max or 100
+			local default  = cfg.default or min
+			local callback = cfg.callback
+			local val = math.clamp(default, min, max)
 			local cont = Instance.new("Frame")
 			cont.Size             = UDim2.new(1,0,0,65)
 			cont.BackgroundColor3 = Color3.fromRGB(20,20,20)
@@ -721,7 +771,7 @@ function Lib:CreateWindow(title)
 			local tLbl = Instance.new("TextLabel")
 			tLbl.Size               = UDim2.new(0.6,0,0,20)
 			tLbl.Position           = UDim2.new(0,10,0,5)
-			tLbl.Text               = text or "Slider"
+			tLbl.Text               = text
 			tLbl.Font               = Enum.Font.GothamBold
 			tLbl.TextSize           = 14
 			tLbl.TextXAlignment     = Enum.TextXAlignment.Left
@@ -765,6 +815,7 @@ function Lib:CreateWindow(title)
 			knob.BackgroundColor3 = Color3.fromRGB(220,20,60)
 			knob.Parent      = bar
 			_corner(knob)
+			if flag then _flags[flag] = val end
 			local sliderDrag = false
 			local function setPos(pos)
 				pos           = math.clamp(pos,0,1)
@@ -772,6 +823,7 @@ function Lib:CreateWindow(title)
 				knob.Position = UDim2.new(pos,0,0.5,0)
 				val           = math.floor(min + pos*(max-min))
 				valTxt.Text   = tostring(val)
+				if flag then _flags[flag] = val end
 				if callback then pcall(callback, val) end
 			end
 			bar.InputBegan:Connect(function(i)
@@ -803,6 +855,7 @@ function Lib:CreateWindow(title)
 						fill.Size     = UDim2.new(p,0,1,0)
 						knob.Position = UDim2.new(p,0,0.5,0)
 						valTxt.Text   = tostring(val)
+						if flag then _flags[flag] = val end
 						if callback then pcall(callback, val) end
 					else valTxt.Text = tostring(val) end
 				end
@@ -815,13 +868,18 @@ function Lib:CreateWindow(title)
 				fill.Size     = UDim2.new(p,0,1,0)
 				knob.Position = UDim2.new(p,0,0.5,0)
 				valTxt.Text   = tostring(val)
+				if flag then _flags[flag] = val end
 			end
 			function S:Get() return val end
 			return S
 		end
 
-		function Folder:Dropdown(headerText, options, callback)
-			local selected = "Select Option"
+		function Folder:AddDropdown(cfg)
+			local headerText = cfg.text or "Dropdown"
+			local flag       = cfg.flag
+			local options    = cfg.values or {}
+			local callback   = cfg.callback
+			local selected   = "Select Option"
 			local dropBtn = Instance.new("TextButton")
 			dropBtn.Size             = UDim2.new(1,0,0,46)
 			dropBtn.BackgroundColor3 = Color3.fromRGB(20,20,20)
@@ -833,7 +891,7 @@ function Lib:CreateWindow(title)
 			headLbl.Size               = UDim2.new(1,-10,0,16)
 			headLbl.Position           = UDim2.new(0,5,0,2)
 			headLbl.BackgroundTransparency = 1
-			headLbl.Text               = headerText or "Dropdown"
+			headLbl.Text               = headerText
 			headLbl.TextColor3         = Color3.fromRGB(170,170,170)
 			headLbl.Font               = Enum.Font.Gotham
 			headLbl.TextSize           = 12
@@ -868,7 +926,8 @@ function Lib:CreateWindow(title)
 			_corner(dropFrame)
 			Instance.new("UIListLayout", dropFrame)
 			local open = false
-			for _, v in ipairs(options or {}) do
+			if flag then _flags[flag] = selected end
+			for _, v in ipairs(options) do
 				local opt = Instance.new("TextButton")
 				opt.Size             = UDim2.new(1,0,0,28)
 				opt.Text             = v
@@ -883,6 +942,7 @@ function Lib:CreateWindow(title)
 					selLbl.Text   = v
 					open          = false
 					arrowLbl.Text = "▼"
+					if flag then _flags[flag] = v end
 					_tween(dropFrame, 0.2, { Size = UDim2.new(1,0,0,0) })
 					task.wait(0.21)
 					updateFolder(); updateCanvas()
@@ -901,8 +961,26 @@ function Lib:CreateWindow(title)
 			updateCanvas()
 			local D = {}
 			function D:Get() return selected end
-			function D:Set(v) selected = v; selLbl.Text = v end
+			function D:Set(v) selected = v; selLbl.Text = v; if flag then _flags[flag] = v end end
 			return D
+		end
+
+		function Folder:AddLabel(cfg)
+			local text = type(cfg) == "table" and cfg.text or cfg
+			local lbl = Instance.new("TextLabel")
+			lbl.Size                   = UDim2.new(1,0,0,28)
+			lbl.Text                   = text or "Label"
+			lbl.BackgroundTransparency = 1
+			lbl.TextColor3             = Color3.fromRGB(200,200,200)
+			lbl.Font                   = Enum.Font.GothamBold
+			lbl.TextSize               = 13
+			lbl.TextXAlignment         = Enum.TextXAlignment.Left
+			lbl.LayoutOrder            = fnxt()
+			lbl.Parent                 = content
+			local lp = Instance.new("UIPadding")
+			lp.PaddingLeft = UDim.new(0,8); lp.Parent = lbl
+			updateCanvas()
+			return lbl
 		end
 
 		return Folder
@@ -918,6 +996,11 @@ function Lib:Start()
 	for _, fn in ipairs(_pendingShow) do fn() end
 	_pendingShow = {}
 	_reposition()
+end
+
+-- GET FLAG
+function Lib:GetFlag(flag)
+	return _flags[flag]
 end
 
 return Lib
