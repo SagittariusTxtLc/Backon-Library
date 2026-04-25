@@ -82,7 +82,7 @@ local function _reposition()
 	local sw  = workspace.CurrentCamera.ViewportSize.X
 	local pos = {}
 	if n == 1 then
-		pos = { WIN_MAR }
+		pos = { (sw / 2) - (WIN_W / 2) }
 	elseif n == 2 then
 		pos = { WIN_MAR, sw - WIN_W - WIN_MAR }
 	else
@@ -106,7 +106,7 @@ function Lib:CreateWindow(title)
 
 	local frame = Instance.new("Frame")
 	frame.Size             = UDim2.new(0, WIN_W, 0, TITLE_H)
-	frame.Position         = UDim2.new(0, WIN_MAR, 0, WIN_Y)
+	frame.Position = UDim2.new(0, (workspace.CurrentCamera.ViewportSize.X / 2) - (WIN_W / 2), 0, WIN_Y)
 	frame.BackgroundColor3 = Color3.fromRGB(0,0,0)
 	frame.ClipsDescendants = true
 	frame.Active           = true
