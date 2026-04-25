@@ -140,16 +140,25 @@ function Lib:CreateWindow(title)
 
 	-- FIXED BOTTOM LABEL
 	local bottomLabel = Instance.new("TextLabel")
-	bottomLabel.Size             = UDim2.new(1,0,0,0)
-	bottomLabel.AnchorPoint      = Vector2.new(0,1)
-	bottomLabel.Position         = UDim2.new(0,0,1,0)
-	bottomLabel.BackgroundColor3 = Color3.fromRGB(15,15,15)
-	bottomLabel.TextColor3       = Color3.fromRGB(150,150,150)
-	bottomLabel.Font             = Enum.Font.GothamBold
-	bottomLabel.TextSize         = 12
-	bottomLabel.Text             = ""
-	bottomLabel.Visible          = false
-	bottomLabel.Parent           = frame
+bottomLabel.Size                  = UDim2.new(1,0,0,0)
+bottomLabel.AnchorPoint           = Vector2.new(0,1)
+bottomLabel.Position              = UDim2.new(0,0,1,0)
+bottomLabel.BackgroundColor3      = Color3.fromRGB(15,15,15)
+bottomLabel.BackgroundTransparency = 0
+bottomLabel.TextColor3            = Color3.fromRGB(150,150,150)
+bottomLabel.Font                  = Enum.Font.GothamBold
+bottomLabel.TextSize              = 12
+bottomLabel.Text                  = ""
+bottomLabel.Visible               = false
+bottomLabel.ZIndex                = 11
+bottomLabel.Parent                = frame
+
+local line = Instance.new("Frame")
+line.Size             = UDim2.new(1,0,0,1)
+line.Position         = UDim2.new(0,0,0,0)
+line.BackgroundColor3 = Color3.fromRGB(220,20,60)
+line.BorderSizePixel  = 0
+line.Parent           = bottomLabel
 
 	local scrollH = MAX_WIN_H - TITLE_H
 
@@ -253,20 +262,11 @@ function Lib:CreateWindow(title)
 	function Win:SetPosition(x, y) frame.Position = UDim2.new(0, x, 0, y) end
 
 	function Win:SetLabel(text)
-    labelH                   = 25
-    bottomLabel.Size         = UDim2.new(1,0,0,25)
-    bottomLabel.Text         = text or ""
-    bottomLabel.Visible      = true
-
-    -- Smooth stroke
-    local stroke = Instance.new("UIStroke")
-    stroke.Color             = Color3.fromRGB(0,0,0)  -- color
-    stroke.Thickness         = 1                           -- thickness
-    stroke.Transparency      = 0                           -- 0 = fully visible
-    stroke.ApplyStrokeMode   = Enum.ApplyStrokeMode.Border
-    stroke.Parent            = bottomLabel
-
-    scroll.Size              = UDim2.new(1,0,0, MAX_WIN_H - TITLE_H - 25)
+    labelH               = 25
+    bottomLabel.Size     = UDim2.new(1,0,0,25)
+    bottomLabel.Text     = text or ""
+    bottomLabel.Visible  = true
+    scroll.Size          = UDim2.new(1,0,0, MAX_WIN_H - TITLE_H - 25)
     updateCanvas()
 end
 
