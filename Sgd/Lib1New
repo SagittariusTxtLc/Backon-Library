@@ -140,25 +140,23 @@ function Lib:CreateWindow(title)
 
 	-- FIXED BOTTOM LABEL
 	local bottomLabel = Instance.new("TextLabel")
-bottomLabel.Size                  = UDim2.new(1,0,0,0)
-bottomLabel.AnchorPoint           = Vector2.new(0,1)
-bottomLabel.Position              = UDim2.new(0,0,1,0)
-bottomLabel.BackgroundColor3      = Color3.fromRGB(15,15,15)
+bottomLabel.Size                   = UDim2.new(1,0,0,0)
+bottomLabel.AnchorPoint            = Vector2.new(0,1)
+bottomLabel.Position               = UDim2.new(0,0,1,0)
+bottomLabel.BackgroundColor3       = Color3.fromRGB(15,15,15)
 bottomLabel.BackgroundTransparency = 0
-bottomLabel.TextColor3            = Color3.fromRGB(150,150,150)
-bottomLabel.Font                  = Enum.Font.GothamBold
-bottomLabel.TextSize              = 12
-bottomLabel.Text                  = ""
-bottomLabel.Visible               = false
-bottomLabel.ZIndex                = 11
-bottomLabel.Parent                = frame
+bottomLabel.TextColor3             = Color3.fromRGB(150,150,150)
+bottomLabel.Font                   = Enum.Font.GothamBold
+bottomLabel.TextSize               = 12
+bottomLabel.Text                   = ""
+bottomLabel.Visible                = false
+bottomLabel.ZIndex                 = 11
+bottomLabel.Parent                 = frame
 
-local line = Instance.new("Frame")
-line.Size             = UDim2.new(1,0,0,1)
-line.Position         = UDim2.new(0,0,0,0)
-line.BackgroundColor3 = Color3.fromRGB(220,20,60)
-line.BorderSizePixel  = 0
-line.Parent           = bottomLabel
+-- Add this to make it rounded!
+local labelCorner = Instance.new("UICorner")
+labelCorner.CornerRadius = UDim.new(0, 6)
+labelCorner.Parent       = bottomLabel
 
 	local scrollH = MAX_WIN_H - TITLE_H
 
