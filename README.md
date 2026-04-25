@@ -1,9 +1,9 @@
-# Smileyy
+# Smileyy UI
 A lightweight Roblox UI Library With Clean And Aesthetic UI, Version Of Wizard Ui
 
 ## Load Library
 ```lua
-local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/SagittariusTxtLc/Backon-Library/refs/heads/main/Sgd/Lib"))()
+local UI = loadstring(game:HttpGet("https://raw.githubusercontent.com/SagittariusTxtLc/Smileyy-Library/refs/heads/main/Sgd/Lib"))()
 ```
 ## Load Window
 ```lua
