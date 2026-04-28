@@ -210,11 +210,11 @@ line.Parent           = bottomLabel
 	colBtn.MouseButton1Click:Connect(function()
     collapsed = not collapsed
     if collapsed then
-        colBtn.Text = "+"
+        colBtn.Text = " "
         -- show title + label only
         _tween(frame, 0.25, { Size = UDim2.new(0, WIN_W, 0, TITLE_H + labelH) })
     else
-        colBtn.Text = "−"
+        colBtn.Text = " "
         -- show everything
         local targetH = math.clamp(contentH + TITLE_H + labelH, TITLE_H + 40, MAX_WIN_H)
         _tween(frame, 0.25, { Size = UDim2.new(0, WIN_W, 0, targetH) })
