@@ -146,7 +146,7 @@ bottomLabel.Position               = UDim2.new(0,0,1,0)
 bottomLabel.BackgroundColor3       = Color3.fromRGB(0,0,0)  -- same as title
 bottomLabel.BackgroundTransparency = 0
 bottomLabel.TextColor3             = Color3.fromRGB(255,255,255)
-bottomLabel.Font                   = Enum.Font.LuckiestGuy  -- same as title
+bottomLabel.Font                   = Enum.Font.GothamBlack  -- same as title
 bottomLabel.TextSize               = 16                      -- same as title
 bottomLabel.Text                   = ""
 bottomLabel.Visible                = false
@@ -322,7 +322,7 @@ end
 		sLbl.BackgroundTransparency = 1
 		sLbl.Text                   = text or ""
 		sLbl.TextColor3             = Color3.fromRGB(110,110,110)
-		sLbl.Font                   = Enum.Font.GothamBold
+		sLbl.Font                   = Enum.Font.GothamBlack
 		sLbl.TextSize               = 13
 		sLbl.Parent                 = sec
 		updateCanvas()
@@ -358,7 +358,7 @@ end
 		arr.Parent             = btn
 		btn.MouseButton1Click:Connect(function()
 			_tween(btn, 0.08, { BackgroundColor3 = Color3.fromRGB(255,255,255) })
-			task.delay(0.12, function()
+			task.delay(0.3, function()
 				_tween(btn, 0.12, { BackgroundColor3 = Color3.fromRGB(25,25,25) })
 			end)
 			if callback then pcall(callback) end
