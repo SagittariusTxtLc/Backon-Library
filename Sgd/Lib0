@@ -337,7 +337,7 @@ end
 		btn.Text             = text
 		btn.BackgroundColor3 = Color3.fromRGB(25,25,25)
 		btn.TextColor3       = Color3.fromRGB(255,255,255)
-		btn.Font             = Enum.Font.GothamBold
+		btn.Font             = Enum.Font.GothamBlack
 		btn.TextSize         = 16
 		btn.LayoutOrder      = nxt()
 		btn.TextXAlignment   = Enum.TextXAlignment.Left
@@ -358,7 +358,7 @@ end
 		arr.Parent             = btn
 		btn.MouseButton1Click:Connect(function()
 			_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(255,255,255) })
-			task.delay(0.3, function()
+			task.delay(0.1, function()
 				_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(25,25,25) })
 			end)
 			if callback then pcall(callback) end
@@ -386,7 +386,7 @@ end
 		lbl.Position           = UDim2.new(0,10,0,0)
 		lbl.BackgroundTransparency = 1
 		lbl.Text               = text
-		lbl.Font               = Enum.Font.GothamBold
+		lbl.Font               = Enum.Font.GothamBlack
 		lbl.TextSize           = 16
 		lbl.TextColor3         = Color3.new(1,1,1)
 		lbl.TextXAlignment     = Enum.TextXAlignment.Left
@@ -433,7 +433,7 @@ end
 		tLbl.Size               = UDim2.new(0.6,0,0,20)
 		tLbl.Position           = UDim2.new(0,10,0,5)
 		tLbl.Text               = text
-		tLbl.Font               = Enum.Font.GothamBold
+		tLbl.Font               = Enum.Font.GothamBlack
 		tLbl.TextSize           = 16
 		tLbl.TextXAlignment     = Enum.TextXAlignment.Left
 		tLbl.TextColor3         = Color3.new(1,1,1)
@@ -450,7 +450,7 @@ end
 		valTxt.Size               = UDim2.new(1,0,1,0)
 		valTxt.BackgroundTransparency = 1
 		valTxt.Text               = tostring(val)
-		valTxt.Font               = Enum.Font.GothamBold
+		valTxt.Font               = Enum.Font.GothamBlack
 		valTxt.TextSize           = 14
 		valTxt.TextColor3         = Color3.fromRGB(200,200,200)
 		valTxt.ClearTextOnFocus   = false
@@ -554,7 +554,7 @@ end
 		headLbl.BackgroundTransparency = 1
 		headLbl.Text               = headerText
 		headLbl.TextColor3         = Color3.fromRGB(170,170,170)
-		headLbl.Font               = Enum.Font.Gotham
+		headLbl.Font               = Enum.Font.GothamBlack
 		headLbl.TextSize           = 13
 		headLbl.TextXAlignment     = Enum.TextXAlignment.Left
 		headLbl.Parent             = dropBtn
@@ -564,7 +564,7 @@ end
 		selLbl.BackgroundTransparency = 1
 		selLbl.Text               = selected
 		selLbl.TextColor3         = Color3.new(1,1,1)
-		selLbl.Font               = Enum.Font.GothamBold
+		selLbl.Font               = Enum.Font.GothamBlack
 		selLbl.TextSize           = 16
 		selLbl.TextXAlignment     = Enum.TextXAlignment.Left
 		selLbl.Parent             = dropBtn
@@ -574,7 +574,7 @@ end
 		arrowLbl.BackgroundTransparency = 1
 		arrowLbl.Text               = "▼"
 		arrowLbl.TextColor3         = Color3.fromRGB(200,200,200)
-		arrowLbl.Font               = Enum.Font.GothamBold
+		arrowLbl.Font               = Enum.Font.GothamBlack
 		arrowLbl.TextSize           = 20
 		arrowLbl.TextXAlignment     = Enum.TextXAlignment.Center
 		arrowLbl.Parent             = dropBtn
@@ -596,7 +596,7 @@ end
 			opt.Text             = v
 			opt.BackgroundColor3 = Color3.fromRGB(30,30,30)
 			opt.TextColor3       = Color3.new(1,1,1)
-			opt.Font             = Enum.Font.GothamBold
+			opt.Font             = Enum.Font.GothamBlack
 			opt.TextSize         = 14
 			opt.Parent           = dropFrame
 			_style(opt)
@@ -630,7 +630,7 @@ end
 		tabBtn.Size             = UDim2.new(1,0,0,40)
 		tabBtn.BackgroundColor3 = Color3.fromRGB(25,25,25)
 		tabBtn.TextColor3       = Color3.fromRGB(180,180,180)
-		tabBtn.Font             = Enum.Font.GothamBold
+		tabBtn.Font             = Enum.Font.GothamBlack
 		tabBtn.TextSize         = 16
 		tabBtn.Text             = "▶  " .. (folderName or "Folder")
 		tabBtn.TextXAlignment   = Enum.TextXAlignment.Left
@@ -697,7 +697,7 @@ end
 			btn.Text             = text
 			btn.BackgroundColor3 = Color3.fromRGB(25,25,25)
 			btn.TextColor3       = Color3.fromRGB(255,255,255)
-			btn.Font             = Enum.Font.GothamBold
+			btn.Font             = Enum.Font.GothamBlack
 			btn.TextSize         = 16
 			btn.LayoutOrder      = fnxt()
 			btn.TextXAlignment   = Enum.TextXAlignment.Left
@@ -714,12 +714,12 @@ end
 			arr.ZIndex             = btn.ZIndex + 1
 			arr.BackgroundTransparency = 1
 			arr.Image              = "rbxthumb://type=Asset&id=13306021335&w=420&h=420"
-			arr.ImageColor3        = Color3.fromRGB(200,200,200)
+			arr.ImageColor3        = Color3.fromRGB(255,255,255)
 			arr.Parent             = btn
 			btn.MouseButton1Click:Connect(function()
-				_tween(btn, 0.08, { BackgroundColor3 = Color3.fromRGB(255,255,255) })
-				task.delay(0.12, function()
-					_tween(btn, 0.12, { BackgroundColor3 = Color3.fromRGB(20,20,20) })
+				_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(255,255,255) })
+				task.delay(0.1, function()
+					_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(20,20,20) })
 				end)
 				if callback then pcall(callback) end
 			end)
@@ -746,7 +746,7 @@ end
 			lbl.Position           = UDim2.new(0,10,0,0)
 			lbl.BackgroundTransparency = 1
 			lbl.Text               = text
-			lbl.Font               = Enum.Font.GothamBold
+			lbl.Font               = Enum.Font.GothamBlack
 			lbl.TextSize           = 14
 			lbl.TextColor3         = Color3.new(1,1,1)
 			lbl.TextXAlignment     = Enum.TextXAlignment.Left
@@ -793,7 +793,7 @@ end
 			tLbl.Size               = UDim2.new(0.6,0,0,20)
 			tLbl.Position           = UDim2.new(0,10,0,5)
 			tLbl.Text               = text
-			tLbl.Font               = Enum.Font.GothamBold
+			tLbl.Font               = Enum.Font.GothamBlack
 			tLbl.TextSize           = 14
 			tLbl.TextXAlignment     = Enum.TextXAlignment.Left
 			tLbl.TextColor3         = Color3.new(1,1,1)
@@ -810,7 +810,7 @@ end
 			valTxt.Size               = UDim2.new(1,0,1,0)
 			valTxt.BackgroundTransparency = 1
 			valTxt.Text               = tostring(val)
-			valTxt.Font               = Enum.Font.GothamBold
+			valTxt.Font               = Enum.Font.GothamBlack
 			valTxt.TextSize           = 13
 			valTxt.TextColor3         = Color3.fromRGB(200,200,200)
 			valTxt.ClearTextOnFocus   = false
@@ -914,7 +914,7 @@ end
 			headLbl.BackgroundTransparency = 1
 			headLbl.Text               = headerText
 			headLbl.TextColor3         = Color3.fromRGB(170,170,170)
-			headLbl.Font               = Enum.Font.Gotham
+			headLbl.Font               = Enum.Font.GothamBlack
 			headLbl.TextSize           = 12
 			headLbl.TextXAlignment     = Enum.TextXAlignment.Left
 			headLbl.Parent             = dropBtn
@@ -924,7 +924,7 @@ end
 			selLbl.BackgroundTransparency = 1
 			selLbl.Text               = selected
 			selLbl.TextColor3         = Color3.new(1,1,1)
-			selLbl.Font               = Enum.Font.GothamBold
+			selLbl.Font               = Enum.Font.GothamBlack
 			selLbl.TextSize           = 14
 			selLbl.TextXAlignment     = Enum.TextXAlignment.Left
 			selLbl.Parent             = dropBtn
@@ -934,7 +934,7 @@ end
 			arrowLbl.BackgroundTransparency = 1
 			arrowLbl.Text               = "▼"
 			arrowLbl.TextColor3         = Color3.fromRGB(200,200,200)
-			arrowLbl.Font               = Enum.Font.GothamBold
+			arrowLbl.Font               = Enum.Font.GothamBlack
 			arrowLbl.TextSize           = 18
 			arrowLbl.TextXAlignment     = Enum.TextXAlignment.Center
 			arrowLbl.Parent             = dropBtn
@@ -954,7 +954,7 @@ end
 				opt.Text             = v
 				opt.BackgroundColor3 = Color3.fromRGB(25,25,25)
 				opt.TextColor3       = Color3.new(1,1,1)
-				opt.Font             = Enum.Font.GothamBold
+				opt.Font             = Enum.Font.GothamBlack
 				opt.TextSize         = 13
 				opt.Parent           = dropFrame
 				_style(opt)
