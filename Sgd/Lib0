@@ -27,12 +27,12 @@ _gui.ResetOnSpawn   = false
 _gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 _gui.Parent         = player.PlayerGui
 
-local WIN_W             = 300
+local WIN_W             = 220
 local WIN_MAR           = 15
 local WIN_Y             = 10
 local TITLE_H           = 40
 local MAX_ITEMS_VISIBLE = 4
-local ITEM_H            = 50
+local ITEM_H            = 55
 local MAX_WIN_H         = TITLE_H + (ITEM_H * MAX_ITEMS_VISIBLE) + 16
 
 local _windows     = {}
