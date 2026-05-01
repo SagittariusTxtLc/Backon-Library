@@ -357,7 +357,7 @@ end
 		arr.ImageColor3        = Color3.fromRGB(200,200,200)
 		arr.Parent             = btn
 		btn.MouseButton1Click:Connect(function()
-			_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(255,255,255) })
+			_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(255, 65, 65) })
 			task.delay(0.1, function()
 				_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(25,25,25) })
 			end)
@@ -394,13 +394,13 @@ end
 		local box = Instance.new("Frame")
 		box.Size             = UDim2.new(0,24,0,24)
 		box.Position         = UDim2.new(1,-34,0.5,-12)
-		box.BackgroundColor3 = state and Color3.fromRGB(255,255,255) or Color3.fromRGB(40,40,40)
+		box.BackgroundColor3 = state and Color3.fromRGB(255, 65, 65) or Color3.fromRGB(40,40,40)
 		box.Parent           = row
 		_corner(box)
 		if flag then _flags[flag] = state end
 		row.MouseButton1Click:Connect(function()
 			state = not state
-			_tween(box, 0.15, { BackgroundColor3 = state and Color3.fromRGB(255,255,255) or Color3.fromRGB(40,40,40) })
+			_tween(box, 0.15, { BackgroundColor3 = state and Color3.fromRGB(255, 65, 65) or Color3.fromRGB(40,40,40) })
 			if flag then _flags[flag] = state end
 			if callback then pcall(callback, state) end
 		end)
@@ -408,7 +408,7 @@ end
 		local T = {}
 		function T:Set(v)
 			state = v
-			_tween(box, 0.15, { BackgroundColor3 = v and Color3.fromRGB(255,255,255) or Color3.fromRGB(40,40,40) })
+			_tween(box, 0.15, { BackgroundColor3 = v and Color3.fromRGB(255, 65, 65) or Color3.fromRGB(40,40,40) })
 			if flag then _flags[flag] = v end
 		end
 		function T:Get() return state end
@@ -466,14 +466,14 @@ end
 		local ip = (val-min)/(max-min)
 		local fill = Instance.new("Frame")
 		fill.Size             = UDim2.new(ip,0,1,0)
-		fill.BackgroundColor3 = Color3.fromRGB(255,255,255)
+		fill.BackgroundColor3 = Color3.fromRGB(255, 65, 65)
 		fill.Parent           = bar
 		_corner(fill)
 		local knob = Instance.new("Frame")
 		knob.Size        = UDim2.new(0,16,0,16)
 		knob.AnchorPoint = Vector2.new(0.5,0.5)
 		knob.Position    = UDim2.new(ip,0,0.5,0)
-		knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
+		knob.BackgroundColor3 = Color3.fromRGB(255, 65, 65)
 		knob.Parent      = bar
 		_corner(knob)
 		if flag then _flags[flag] = val end
@@ -717,7 +717,7 @@ end
 			arr.ImageColor3        = Color3.fromRGB(255,255,255)
 			arr.Parent             = btn
 			btn.MouseButton1Click:Connect(function()
-				_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(255,255,255) })
+				_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(255, 65, 65) })
 				task.delay(0.1, function()
 					_tween(btn, 0.2, { BackgroundColor3 = Color3.fromRGB(20,20,20) })
 				end)
@@ -754,13 +754,13 @@ end
 			local box = Instance.new("Frame")
 			box.Size             = UDim2.new(0,22,0,22)
 			box.Position         = UDim2.new(1,-32,0.5,-11)
-			box.BackgroundColor3 = state and Color3.fromRGB(255,255,255) or Color3.fromRGB(40,40,40)
+			box.BackgroundColor3 = state and Color3.fromRGB(255, 65, 65) or Color3.fromRGB(40,40,40)
 			box.Parent           = row
 			_corner(box)
 			if flag then _flags[flag] = state end
 			row.MouseButton1Click:Connect(function()
 				state = not state
-				_tween(box, 0.15, { BackgroundColor3 = state and Color3.fromRGB(255,255,255) or Color3.fromRGB(40,40,40) })
+				_tween(box, 0.15, { BackgroundColor3 = state and Color3.fromRGB(255, 65, 65) or Color3.fromRGB(40,40,40) })
 				if flag then _flags[flag] = state end
 				if callback then pcall(callback, state) end
 			end)
@@ -768,7 +768,7 @@ end
 			local T = {}
 			function T:Set(v)
 				state = v
-				_tween(box, 0.15, { BackgroundColor3 = v and Color3.fromRGB(255,255,255) or Color3.fromRGB(40,40,40) })
+				_tween(box, 0.15, { BackgroundColor3 = v and Color3.fromRGB(255, 65, 65) or Color3.fromRGB(40,40,40) })
 				if flag then _flags[flag] = v end
 			end
 			function T:Get() return state end
@@ -826,14 +826,14 @@ end
 			local ip = (val-min)/(max-min)
 			local fill = Instance.new("Frame")
 			fill.Size             = UDim2.new(ip,0,1,0)
-			fill.BackgroundColor3 = Color3.fromRGB(255,255,255)
+			fill.BackgroundColor3 = Color3.fromRGB(255, 65, 65)
 			fill.Parent           = bar
 			_corner(fill)
 			local knob = Instance.new("Frame")
 			knob.Size        = UDim2.new(0,14,0,14)
 			knob.AnchorPoint = Vector2.new(0.5,0.5)
 			knob.Position    = UDim2.new(ip,0,0.5,0)
-			knob.BackgroundColor3 = Color3.fromRGB(255,255,255)
+			knob.BackgroundColor3 = Color3.fromRGB(255, 65, 65)
 			knob.Parent      = bar
 			_corner(knob)
 			if flag then _flags[flag] = val end
