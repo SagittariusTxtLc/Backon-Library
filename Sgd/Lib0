@@ -176,6 +176,7 @@ line.Parent           = bottomLabel
 	scroll.ScrollBarImageColor3 = Color3.fromRGB(255,255,255)
 	scroll.CanvasSize           = UDim2.new(0,0,0,0)
 	scroll.AutomaticCanvasSize  = Enum.AutomaticSize.Y
+    scroll.ScrollingDirection   = Enum.ScrollingDirection.Y
 	scroll.Parent               = frame
 
 	local layout = Instance.new("UIListLayout")
