@@ -27,7 +27,7 @@ _gui.ResetOnSpawn   = false
 _gui.ZIndexBehavior = Enum.ZIndexBehavior.Sibling
 _gui.Parent         = player.PlayerGui
 
-local WIN_W             = 220
+local WIN_W             = 300
 local WIN_MAR           = 15
 local WIN_Y             = 10
 local TITLE_H           = 40
